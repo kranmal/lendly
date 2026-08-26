@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BorrowModal } from '@/components/borrow-modal';
@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/empty-state';
 import { LendModal } from '@/components/lend-modal';
 import { LoanRow } from '@/components/loan-row';
 import { PrimaryButton } from '@/components/primary-button';
+import { ThemeToggleButton } from '@/components/theme-toggle-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -27,14 +28,17 @@ export default function HomeScreen() {
           style={styles.scrollView}
           contentContainerStyle={[styles.content, Platform.OS === 'web' && styles.contentWeb]}>
           <View style={styles.header}>
-            <ThemedText type="title" style={styles.title}>
-              Lendly
-            </ThemedText>
-            <ThemedText type="small" themeColor="textSecondary">
-              {activeLoans.length === 0
-                ? "Nothing's out right now."
-                : `${activeLoans.length} item${activeLoans.length === 1 ? '' : 's'} out${overdueCount ? ` · ${overdueCount} overdue` : ''}`}
-            </ThemedText>
+            <View style={styles.headerText}>
+              <ThemedText type="title" style={styles.title}>
+                Lendly
+              </ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                {activeLoans.length === 0
+                  ? "Nothing's out right now."
+                  : `${activeLoans.length} item${activeLoans.length === 1 ? '' : 's'} out${overdueCount ? ` · ${overdueCount} overdue` : ''}`}
+              </ThemedText>
+            </View>
+            <ThemeToggleButton />
           </View>
 
           <View style={styles.actionsRow}>
@@ -54,6 +58,16 @@ export default function HomeScreen() {
                 <LoanRow key={loan.id} loan={loan} onMarkReturned={() => markReturned(loan.id)} />
               ))}
             </View>
+          )}
+
+          {Platform.OS === 'web' && (
+            <ThemedText
+              type="small"
+              themeColor="textSecondary"
+              style={styles.footer}
+              onPress={() => Linking.openURL('https://kranmal.github.io/privacy.html')}>
+              Privacy Policy
+            </ThemedText>
           )}
         </ScrollView>
       </SafeAreaView>
@@ -87,6 +101,13 @@ const styles = StyleSheet.create({
     paddingTop: Spacing.six,
   },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: Spacing.three,
+  },
+  headerText: {
+    flex: 1,
     gap: Spacing.one,
   },
   title: {
@@ -102,5 +123,9 @@ const styles = StyleSheet.create({
   },
   list: {
     gap: Spacing.two,
+  },
+  footer: {
+    textAlign: 'center',
+    textDecorationLine: 'underline',
   },
 });
