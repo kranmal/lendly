@@ -3,6 +3,7 @@ import { Pressable, StyleSheet } from 'react-native';
 import { ThemedText } from './themed-text';
 
 import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
 
 type PrimaryButtonProps = {
   label: string;
@@ -12,6 +13,8 @@ type PrimaryButtonProps = {
 };
 
 export function PrimaryButton({ label, onPress, disabled, variant = 'primary' }: PrimaryButtonProps) {
+  const theme = useTheme();
+
   return (
     <Pressable
       onPress={onPress}
@@ -19,7 +22,7 @@ export function PrimaryButton({ label, onPress, disabled, variant = 'primary' }:
       style={({ pressed }) => [
         styles.base,
         variant === 'primary' && styles.primary,
-        variant === 'secondary' && styles.secondary,
+        variant === 'secondary' && { backgroundColor: theme.backgroundElement },
         variant === 'danger' && styles.danger,
         (pressed || disabled) && styles.pressed,
       ]}>
@@ -42,9 +45,6 @@ const styles = StyleSheet.create({
   },
   primary: {
     backgroundColor: '#3c87f7',
-  },
-  secondary: {
-    backgroundColor: '#F0F0F3',
   },
   danger: {
     backgroundColor: '#E5484D',
