@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Linking, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AdUnit } from '@/components/ad-unit';
 import { BorrowModal } from '@/components/borrow-modal';
 import { EmptyState } from '@/components/empty-state';
 import { LendModal } from '@/components/lend-modal';
@@ -59,6 +60,8 @@ export default function HomeScreen() {
               ))}
             </View>
           )}
+
+          {Platform.OS === 'web' && <AdUnit />}
 
           {Platform.OS === 'web' && (
             <ThemedText
