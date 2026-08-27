@@ -1,0 +1,73 @@
+name: E2E Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            e2e-tests/package-lock.json
+
+      - name: Install app dependencies
+        run: npm ci
+
+      - name: Install e2e test dependencies
+        working-directory: e2e-tests
+        run: npm ci
+
+      - name: Typecheck e2e tests
+        working-directory: e2e-tests
+        run: npm run typecheck
+
+      - name: Install Playwright browser
+        working-directory: e2e-tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        working-directory: e2e-tests
+        run: npm test
+
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: e2e-tests/playwright-report/
+          retention-days: 14
+
+  update-dashboard:
+    needs: e2e
+    if: ${{ always() && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2E_RUN_ID: ${{ github.run_id }}
+          E2E_RUN_CONCLUSION: ${{ needs.e2e.result }}
+        run: python3 tools/build_dashboard/refresh.py
+
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A -- e2e-dashboard/
+          if git diff --cached --quiet; then
+            echo "Dashboard already up to date"
+          else
+            git commit -m "Auto-refresh E2E dashboard (run #${{ github.run_number }})"
+            git push
+          fi

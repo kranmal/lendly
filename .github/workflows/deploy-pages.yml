@@ -37,6 +37,12 @@ jobs:
           cp dist/index.html dist/404.html
           touch dist/.nojekyll
 
+      - name: Include the E2E dashboard in the deploy
+        run: |
+          if [ -d e2e-dashboard ]; then
+            cp -r e2e-dashboard dist/e2e-dashboard
+          fi
+
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
