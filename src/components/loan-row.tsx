@@ -5,6 +5,7 @@ import { ThemedText } from './themed-text';
 import { ThemedView } from './themed-view';
 
 import { Spacing } from '@/constants/theme';
+import { useNow } from '@/hooks/use-now';
 import { formatDate, formatDueLabel } from '@/lib/date';
 import { isOverdue } from '@/lib/store';
 import type { EnrichedLoan } from '@/lib/store';
@@ -16,7 +17,8 @@ type LoanRowProps = {
 };
 
 export function LoanRow({ loan, onPress, onMarkReturned }: LoanRowProps) {
-  const overdue = isOverdue(loan);
+  const now = useNow();
+  const overdue = isOverdue(loan, now);
   const directionLabel = loan.direction === 'lent_out' ? `Lent to ${loan.person.name}` : `Borrowed from ${loan.person.name}`;
   const arrow = loan.direction === 'lent_out' ? '↗' : '↙';
 
@@ -31,7 +33,7 @@ export function LoanRow({ loan, onPress, onMarkReturned }: LoanRowProps) {
             {directionLabel}
           </ThemedText>
           <ThemedText type="small" themeColor={overdue ? undefined : 'textSecondary'} style={overdue && styles.overdueText}>
-            {loan.status === 'returned' ? `Returned ${formatDate(loan.actualReturn ?? loan.dateOut)}` : formatDueLabel(loan.expectedReturn)}
+            {loan.status === 'returned' ? `Returned ${formatDate(loan.actualReturn ?? loan.dateOut)}` : formatDueLabel(loan.expectedReturn, now)}
           </ThemedText>
         </View>
         {onMarkReturned && <PrimaryButton label="Returned" variant="secondary" onPress={onMarkReturned} />}

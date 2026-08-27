@@ -269,3 +269,53 @@ test('toggling the theme switches the icon and persists across reload', async ({
     await expect(toggle()).toHaveText('☀');
   });
 });
+
+// formatDueLabel()/isOverdue() compute their result from Date.now() at render
+// time, but their only tracked input is loan.expectedReturn, which never
+// changes - so React (and this app's React Compiler auto-memoization) has no
+// signal that the output goes stale as real time passes. useNow() (see
+// src/hooks/use-now.ts) exists to force a periodic re-render so that staleness
+// gets caught. This drives a virtual clock forward past the due date with no
+// user interaction at all in between, so a pass here can only mean the label
+// re-rendered on its own timer, not because something else happened to
+// re-render the row.
+test("an active loan's due-date label updates on its own as time passes", async ({ page }, testInfo) => {
+  await step(page, testInfo, 'Install a virtual clock and load the app', async () => {
+    await page.clock.install();
+    await page.goto('/');
+  });
+
+  await step(page, testInfo, 'Add "Tent" and lend it to Sam, due back in 3 days', async () => {
+    await page.getByRole('link', { name: 'Items' }).click();
+    await page.getByText('+ Add', { exact: true }).click();
+    await page.getByPlaceholder('Cordless drill').fill('Tent');
+    await page.getByText('Add item', { exact: true }).last().click();
+
+    await page.getByRole('link', { name: 'Home' }).click();
+    await page.getByText('Lend an item', { exact: true }).click();
+    await page.getByText('Tent', { exact: true }).last().click();
+    await page.getByPlaceholder('Type a name').fill('Sam');
+    await page.getByText('3 days', { exact: true }).click();
+    await page.getByText('Lend it', { exact: true }).click();
+    await waitForModalToClose(page);
+  });
+
+  await step(page, testInfo, 'Verify Home shows "Due in 3 days"', async () => {
+    await expect(page.getByText('Due in 3 days', { exact: true })).toBeVisible();
+  });
+
+  await step(page, testInfo, 'Advance the clock 4 days with no page interaction', async () => {
+    // fastForward() jumps Date/Date.now() straight to the target time but,
+    // per Playwright's docs, only fires timers that are already due "at most
+    // once" - it doesn't pump the event loop the way real elapsed time would,
+    // so the app's own 60s useNow() interval can end up jumped-past without
+    // actually firing. A trailing runFor() over a window bigger than that
+    // interval lets it fire normally once the jump lands it in the past.
+    await page.clock.fastForward(4 * 24 * 60 * 60 * 1000);
+    await page.clock.runFor(60_000);
+  });
+
+  await step(page, testInfo, 'Verify the label flipped to overdue on its own', async () => {
+    await expect(page.getByText('Overdue by 1 day', { exact: true })).toBeVisible();
+  });
+});

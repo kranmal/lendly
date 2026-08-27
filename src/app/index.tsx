@@ -12,15 +12,17 @@ import { ThemeToggleButton } from '@/components/theme-toggle-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useNow } from '@/hooks/use-now';
 import { getActiveLoans, isOverdue, markReturned, useStore } from '@/lib/store';
 
 export default function HomeScreen() {
+  const now = useNow();
   const store = useStore();
   const [lendVisible, setLendVisible] = useState(false);
   const [borrowVisible, setBorrowVisible] = useState(false);
 
   const activeLoans = getActiveLoans(store);
-  const overdueCount = activeLoans.filter(isOverdue).length;
+  const overdueCount = activeLoans.filter((loan) => isOverdue(loan, now)).length;
 
   return (
     <ThemedView style={styles.container}>

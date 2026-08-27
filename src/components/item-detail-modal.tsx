@@ -5,6 +5,7 @@ import { SheetModal } from './sheet-modal';
 import { ThemedText } from './themed-text';
 
 import { Spacing } from '@/constants/theme';
+import { useNow } from '@/hooks/use-now';
 import { formatDueLabel } from '@/lib/date';
 import { getLoanForItem, markReturned, useStore } from '@/lib/store';
 
@@ -16,6 +17,7 @@ type ItemDetailModalProps = {
 };
 
 export function ItemDetailModal({ visible, onClose, itemId, onLend }: ItemDetailModalProps) {
+  const now = useNow();
   const store = useStore();
   const item = itemId ? store.items.find((i) => i.id === itemId) : undefined;
   if (!item) return null;
@@ -42,7 +44,7 @@ export function ItemDetailModal({ visible, onClose, itemId, onLend }: ItemDetail
           <View style={{ gap: Spacing.two }}>
             <ThemedText type="small">
               {loan.direction === 'lent_out' ? `Lent to ${loan.person.name}` : `Borrowed from ${loan.person.name}`} ·{' '}
-              {formatDueLabel(loan.expectedReturn)}
+              {formatDueLabel(loan.expectedReturn, now)}
             </ThemedText>
             <PrimaryButton
               label="Mark returned"
