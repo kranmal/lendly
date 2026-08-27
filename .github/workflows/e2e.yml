@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      actions: read
+      actions: write
     steps:
       - uses: actions/checkout@v4
 
@@ -61,13 +61,19 @@ jobs:
           E2E_RUN_CONCLUSION: ${{ needs.e2e.result }}
         run: python3 tools/build_dashboard/refresh.py
 
-      - run: |
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A -- e2e-dashboard/
           if git diff --cached --quiet; then
             echo "Dashboard already up to date"
-          else
-            git commit -m "Auto-refresh E2E dashboard (run #${{ github.run_number }})"
-            git push
+            exit 0
           fi
+          git commit -m "Auto-refresh E2E dashboard (run #${{ github.run_number }})"
+          git push
+          # A push made with GITHUB_TOKEN doesn't trigger other workflows
+          # (GitHub's anti-loop protection), so deploy-pages.yml would never
+          # see this commit and redeploy - kick it off explicitly instead.
+          gh workflow run deploy-pages.yml --ref main
