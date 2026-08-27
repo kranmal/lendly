@@ -182,6 +182,6 @@ export function getLoansForPerson(s: State, personId: string): EnrichedLoan[] {
     .sort((a, b) => b.dateOut - a.dateOut);
 }
 
-export function isOverdue(loan: LoanRecord): boolean {
-  return loan.status === 'active' && !!loan.expectedReturn && loan.expectedReturn < Date.now();
+export function isOverdue(loan: LoanRecord, now: number): boolean {
+  return loan.status === 'active' && !!loan.expectedReturn && loan.expectedReturn < now;
 }
