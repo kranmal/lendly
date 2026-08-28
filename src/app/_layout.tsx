@@ -15,13 +15,12 @@ const ADSENSE_CLIENT_ID = 'ca-pub-6981194323350325';
 export default function TabLayout() {
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-    if (document.querySelector('script[data-adsbygoogle-loader]')) return;
+    if (document.querySelector('script[src*="adsbygoogle.js"]')) return;
 
     const script = document.createElement('script');
     script.async = true;
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`;
     script.crossOrigin = 'anonymous';
-    script.dataset.adsbygoogleLoader = 'true';
     document.head.appendChild(script);
   }, []);
 
