@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/empty-state';
 import { LendModal } from '@/components/lend-modal';
 import { LoanRow } from '@/components/loan-row';
 import { PrimaryButton } from '@/components/primary-button';
+import { SeoHead } from '@/components/seo-head';
 import { ThemeToggleButton } from '@/components/theme-toggle-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -26,6 +27,10 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <SeoHead
+        title="Lendly — track what you've lent and borrowed"
+        description="Track what you've lent out and borrowed — items, people, and due dates, all in one place. Free, no sign-up."
+      />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
           style={styles.scrollView}

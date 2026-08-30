@@ -21,6 +21,12 @@ interface State {
 let state: State = { items: [], people: [], loans: [], loaded: false };
 const listeners = new Set<() => void>();
 
+/**
+ * AsyncStorage is localStorage-backed on web, so it only exists in the browser.
+ * The static web export prerenders every route in Node, where touching it throws.
+ */
+const isBrowser = typeof window !== 'undefined';
+
 function notify() {
   listeners.forEach((listener) => listener());
 }
@@ -32,6 +38,7 @@ function setState(partial: Partial<State>) {
 }
 
 async function persist() {
+  if (!isBrowser) return;
   await Promise.all([
     AsyncStorage.setItem(KEYS.items, JSON.stringify(state.items)),
     AsyncStorage.setItem(KEYS.people, JSON.stringify(state.people)),
@@ -40,6 +47,7 @@ async function persist() {
 }
 
 async function load() {
+  if (!isBrowser) return;
   const [items, people, loans] = await Promise.all([
     AsyncStorage.getItem(KEYS.items),
     AsyncStorage.getItem(KEYS.people),

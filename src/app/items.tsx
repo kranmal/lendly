@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/empty-state';
 import { ItemDetailModal } from '@/components/item-detail-modal';
 import { LendModal } from '@/components/lend-modal';
 import { PrimaryButton } from '@/components/primary-button';
+import { SeoHead } from '@/components/seo-head';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -25,6 +26,11 @@ export default function ItemsScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <SeoHead
+        title="Items — Lendly"
+        description="Every item you've added to Lendly, and who currently has it. Free, no sign-up."
+        path="items"
+      />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
           style={styles.scrollView}
