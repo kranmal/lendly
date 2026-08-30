@@ -32,9 +32,11 @@ jobs:
         env:
           GH_PAGES_BASE_URL: /lendly
 
-      - name: SPA fallback for client-side routing
+      # 404.html ships from public/. _sitemap.html and +not-found.html are
+      # expo-router scaffolding, not pages we want crawled or served.
+      - name: Drop router scaffolding and disable Jekyll
         run: |
-          cp dist/index.html dist/404.html
+          rm -f dist/_sitemap.html dist/+not-found.html
           touch dist/.nojekyll
 
       - name: Include the E2E dashboard in the deploy

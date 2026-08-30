@@ -6,6 +6,7 @@ import { AddPersonModal } from '@/components/add-person-modal';
 import { EmptyState } from '@/components/empty-state';
 import { PersonDetailModal } from '@/components/person-detail-modal';
 import { PrimaryButton } from '@/components/primary-button';
+import { SeoHead } from '@/components/seo-head';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
@@ -18,6 +19,11 @@ export default function PeopleScreen() {
 
   return (
     <ThemedView style={styles.container}>
+      <SeoHead
+        title="People — Lendly"
+        description="Everyone you've lent something to or borrowed something from, and what's still outstanding. Free, no sign-up."
+        path="people"
+      />
       <SafeAreaView style={styles.safeArea} edges={['top']}>
         <ScrollView
           style={styles.scrollView}
