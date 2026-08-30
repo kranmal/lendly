@@ -319,3 +319,43 @@ test("an active loan's due-date label updates on its own as time passes", async 
     await expect(page.getByText('Overdue by 1 day', { exact: true })).toBeVisible();
   });
 });
+
+// The web build is statically prerendered, so each route's HTML ships with
+// its own <title>, description and canonical. Client-side tab navigation has
+// to keep those in sync: expo-router/ui's tab navigator leaves every visited
+// tab mounted, so all their <SeoHead>s coexist and only route focus decides
+// which one owns the document head. A stale title here means a reader who
+// bookmarks or shares from inside the app captures the wrong page.
+test('the document head follows the focused tab', async ({ page }, testInfo) => {
+  const canonical = () => page.locator('link[rel="canonical"]');
+  const description = () => page.locator('meta[name="description"]');
+
+  await step(page, testInfo, 'Load Home and check its head', async () => {
+    await page.goto('/');
+    await expect(page).toHaveTitle("Lendly — track what you've lent and borrowed");
+    await expect(canonical()).toHaveAttribute('href', 'https://kranmal.github.io/lendly/');
+  });
+
+  await step(page, testInfo, 'Navigate to Items and check the head followed', async () => {
+    await page.getByRole('link', { name: 'Items' }).click();
+    await expect(page.getByText('No items yet. Add the things you might lend out.')).toBeVisible();
+    await expect(page).toHaveTitle('Items — Lendly');
+    await expect(canonical()).toHaveAttribute('href', 'https://kranmal.github.io/lendly/items');
+    await expect(description()).toHaveAttribute(
+      'content',
+      "Every item you've added to Lendly, and who currently has it. Free, no sign-up."
+    );
+  });
+
+  await step(page, testInfo, 'Navigate to People and check the head followed', async () => {
+    await page.getByRole('link', { name: 'People' }).click();
+    await expect(page).toHaveTitle('People — Lendly');
+    await expect(canonical()).toHaveAttribute('href', 'https://kranmal.github.io/lendly/people');
+  });
+
+  await step(page, testInfo, 'Navigate back to Home and check the head followed', async () => {
+    await page.getByRole('link', { name: 'Home' }).click();
+    await expect(page).toHaveTitle("Lendly — track what you've lent and borrowed");
+    await expect(canonical()).toHaveAttribute('href', 'https://kranmal.github.io/lendly/');
+  });
+});
