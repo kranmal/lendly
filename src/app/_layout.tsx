@@ -1,7 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { Platform } from 'react-native';
 
 import { AnimatedSplashOverlay } from '@/components/animated-icon';
 import AppTabs from '@/components/app-tabs';
@@ -10,20 +8,7 @@ import { ThemeOverrideProvider } from '@/hooks/use-theme-override';
 
 SplashScreen.preventAutoHideAsync();
 
-const ADSENSE_CLIENT_ID = 'ca-pub-6981194323350325';
-
 export default function TabLayout() {
-  useEffect(() => {
-    if (Platform.OS !== 'web') return;
-    if (document.querySelector('script[src*="adsbygoogle.js"]')) return;
-
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`;
-    script.crossOrigin = 'anonymous';
-    document.head.appendChild(script);
-  }, []);
-
   return (
     <ThemeOverrideProvider>
       <RootLayoutContent />
