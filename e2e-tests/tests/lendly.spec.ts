@@ -3,7 +3,6 @@ import { step } from './utils/step';
 
 test.beforeEach(async ({ page }) => {
   // Block ads so the test never depends on real third-party hosts.
-  await page.route('**pagead2.googlesyndication.com/**', (route) => route.abort());
 });
 
 /**
